@@ -5,11 +5,12 @@
 #include <cstdlib>
 #include <string>
 #include "parser_driver.hh"
+#include "utils.hh"
 #include "tiger_parser.hh"
 #include "../utils/errors.hh"
 
 #define TIGER_INT_MAX  2147483647  /*  2^31 - 1 */
-
+#define TIGER_INT_MIN (-TIGER_INT_MAX - 1)
 # undef yywrap
 # define yywrap() 1
 
@@ -24,6 +25,18 @@ static std::string string_buffer;
 lineterminator  \r|\n|\r\n
 blank           [ \t\f]
 id              [a-zA-Z][_0-9a-zA-Z]*
+
+[0-9]+ {
+    if (yytext[0] == '0' && strlen(yytext) > 1) {
+        utils::error("Leading zeros are not allowed");
+    }
+    long val = strtol(yytext, NULL, 10);
+    if (val > TIGER_INT_MAX || val < TIGER_INT_MIN) {
+        utils::error("Integer out of range");
+    }
+    yylval.int_val = val;
+    return INT;
+}
 
  /* Declare two start conditions (sub-automate states) to handle
     strings and comments */

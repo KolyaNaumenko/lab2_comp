@@ -78,7 +78,7 @@ using utils::nl;
 ;
 
 // Define tokens that have an associated value, such as identifiers or strings
-
+%token INT /* integer */
 %token <Symbol> ID "id"
 %token <Symbol> STRING "string"
 
@@ -128,6 +128,7 @@ expr: stringExpr { $$ = $1; }
    | forExpr { $$ = $1; }
    | breakExpr { $$ = $1; }
    | letExpr { $$ = $1; }
+   | intExpr 
 ;
 
 varDecl: VAR ID typeannotation ASSIGN expr
@@ -139,6 +140,10 @@ funcDecl: FUNCTION ID LPAREN params RPAREN typeannotation EQ expr
 ;
 
 /* Exprs */
+
+intExpr: INT 
+{$$ = new IntegerLiteral($1);}
+;
 
 stringExpr: STRING
   { $$ = new StringLiteral(@1, $1); }
